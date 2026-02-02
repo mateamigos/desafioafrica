@@ -101,7 +101,6 @@
             font-size: 0.8rem; font-weight: 800;
         }
         
-        /* Ajuste solicitado: Imagen de leyenda uniforme */
         .legend-img { width: 22px; height: 22px; object-fit: contain; }
 
         .game-board { 
@@ -126,7 +125,26 @@
         }
         .btn-warrior:active { transform: translateY(4px); box-shadow: 0 2px 0 #3E2723; }
 
-        .feedback { font-size: 1rem; font-weight: bold; height: 25px; margin-top: 5px; }
+        /* CAMBIO: Feedback centrado en pantalla */
+        .feedback { 
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Bangers', cursive;
+            font-size: 6rem;
+            z-index: 2000;
+            pointer-events: none;
+            text-shadow: 4px 4px 10px rgba(0,0,0,0.5);
+            display: none;
+        }
+
+        /* Animación para el mensaje */
+        @keyframes popIn {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+        }
     </style>
 </head>
 <body>
@@ -184,7 +202,6 @@
 
     const legendBox = document.getElementById('legend-box');
     items.forEach(item => {
-        // Ajuste solicitado: Uso de la clase legend-img para uniformidad
         legendBox.innerHTML += `<div class="legend-item"><img src="${item.img}" class="legend-img"> = ${item.val.toLocaleString('es-ES')}</div>`;
     });
 
@@ -226,7 +243,7 @@
         const board = document.getElementById('board');
         const optionsContainer = document.getElementById('options-container');
         board.innerHTML = ''; optionsContainer.innerHTML = '';
-        document.getElementById('feedback').innerText = '';
+        document.getElementById('feedback').style.display = 'none';
         currentResult = 0;
 
         let allImages = [];
@@ -264,14 +281,25 @@
     function checkAnswer(selected) {
         clearInterval(timerInterval);
         const fb = document.getElementById('feedback');
+        
+        // CAMBIO: Lógica de visualización central
         if(selected === currentResult) {
-            fb.innerText = "¡EXCELENTE! +10 ✨"; fb.style.color = "#2E7D32"; score += 10;
+            fb.innerText = "+10 ✨"; 
+            fb.style.color = "#FFD700"; 
+            score += 10;
         } else {
-            fb.innerText = selected === null ? "¡TIEMPO AGOTADO! -5 ⏳" : "¡SIGUE CONTANDO! -5 🤔";
-            fb.style.color = "#C62828"; score = Math.max(0, score - 5);
+            fb.innerText = "-5 🐾";
+            fb.style.color = "#FF4500"; 
+            score = Math.max(0, score - 5);
         }
+
+        fb.style.display = "block";
+        fb.style.animation = "popIn 1s forwards";
+
         document.getElementById('points').innerText = score;
         round++;
+        
+        // Esperamos a que termine la animación antes de la siguiente ronda
         setTimeout(initGame, 1000);
     }
 
